@@ -1,7 +1,6 @@
 # FastAPI Task Manager 
 
-A production-ready Task Management API built with FastAPI. This project serves as a practical implementation of my journey through Backend Engineering and DevOps.
-
+A production-ready Task Management API built with FastAPI. 
 
 - [x] **Week 1: FastAPI Basics** (Current)
   - [x] In-memory CRUD operations
