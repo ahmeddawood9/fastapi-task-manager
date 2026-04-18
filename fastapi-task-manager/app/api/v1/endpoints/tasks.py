@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from typing import Optional
+from fastapi import APIRouter, HTTPException, status, Depends, Query
 from sqlalchemy.orm import Session
 
 # Syntax: Import schemas and models using aliases for cleaner code
@@ -11,10 +12,25 @@ from app.database import get_db
 router = APIRouter()
 
 @router.get("/", response_model=list[schemas.TaskResponse])
-def get_all_tasks(db: Session = Depends(get_db)):
-    # Syntax: db.query(Model).all()
-    # Logic: Goes to the Postgres 'tasks' table and returns every row as a list of Python objects.
-    tasks = db.query(models.Task).all()
+def get_all_tasks(
+    db: Session = Depends(get_db),
+    # Syntax: FastAPI automatically reads these from the URL query string
+    skip: int = Query(0, ge=0, description="Number of tasks to skip"),
+    limit: int = Query(100, le=100, description="Max tasks to return"),
+    status: Optional[bool] = Query(None, description="Filter by 'done' status")
+):
+    # 1. Base Query: We don't use .all() yet, so this stays in Python memory
+    # and doesn't hit the PostgreSQL database yet.
+    query = db.query(models.Task)
+
+    # 2. Filter Logic: If the user provided '?status=true' or '?status=false'
+    if status is not None:
+        query = query.filter(models.Task.done == status)
+
+    # 3. Pagination Logic: Translates directly to SQL 'OFFSET' and 'LIMIT'
+    # .all() physically executes the query against the database.
+    tasks = query.offset(skip).limit(limit).all()
+
     return tasks
 
 @router.post("/", response_model=schemas.TaskResponse, status_code=status.HTTP_201_CREATED)
@@ -39,7 +55,6 @@ def get_one_task(task_id: int, db: Session = Depends(get_db)):
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found")
     return task
-
 
 @router.delete("/{task_id}")
 def delete_task(task_id: int, db: Session = Depends(get_db)):
