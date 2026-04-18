@@ -1,11 +1,17 @@
 from fastapi import FastAPI
-from app.api.v1.api import api_router
+from app.api.v1.endpoints import tasks
+from app.database import engine
+from app.models import task as models
 
-app = FastAPI(title="Task Manager - Phase 1")
+# Syntax: Create Tables
+models.Base.metadata.create_all(bind=engine)
 
-# Include the aggregated router
-app.include_router(api_router, prefix="/api/v1")
+app = FastAPI(title="Task Manager API")
+
+# Syntax: Include the modular router
+app.include_router(tasks.router, prefix="/tasks", tags=["Tasks"])
 
 @app.get("/")
 def root():
-    return {"message": "API is running. Access endpoints at /api/v1/tasks or view docs at /docs"}
+    # Syntax & Logic Fix: A clean dictionary with a properly closed string.
+    return {"message": "Task Manager connected to PostgreSQL! View docs at /docs"}
