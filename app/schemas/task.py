@@ -15,7 +15,7 @@ class TaskCreate(TaskBase):
 
 # Syntax: Response Schema
 # Logic: What FastAPI will return to the user (includes the DB-generated ID).
-class TaskResponse(TaskBase):
+class Task(TaskBase):
     id: int
 
     class Config:
