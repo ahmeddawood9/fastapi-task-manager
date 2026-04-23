@@ -17,5 +17,6 @@ class TaskCreate(TaskBase):
 # Logic: What FastAPI will return to the user (includes the DB-generated ID).
 class Task(TaskBase):
     id: int
+    owner_id: int
 
     model_config = ConfigDict(from_attributes=True)

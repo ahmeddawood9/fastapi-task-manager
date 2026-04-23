@@ -18,7 +18,7 @@ def create_task(
     current_user: user_models.User = Depends(get_current_user)
 ):
     # Force the new task to be owned by the user holding the JWT token
-    new_task = task_models.Task(**task.dict(), owner_id=current_user.id)
+    new_task = task_models.Task(**task.model_dump(), owner_id=current_user.id)
     db.add(new_task)
     db.commit()
     db.refresh(new_task)
@@ -70,7 +70,7 @@ def update_task(
     if task is None:
         raise HTTPException(status_code=404, detail="Task not found or not authorized")
 
-    task_query.update(task_update.dict(), synchronize_session=False)
+    task_query.update(task_update.model_dump(), synchronize_session=False)
     db.commit()
     return task_query.first()
 
